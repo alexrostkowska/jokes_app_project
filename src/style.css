@@ -67,6 +67,26 @@ ul {
     grid-auto-rows: auto;
     grid-gap: 24px;
 }
+.form-container {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
 
 }
 
@@ -76,6 +96,27 @@ ul {
         flex-direction: column;
         gap: 24px;
     }
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #333;
+    }
+
+    input[type="text"], textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+
+    }
 
 }
 .btn-primary {
@@ -83,6 +124,10 @@ ul {
     display: flex;
     left: 20%;
     margin: 20%;
+    padding: 10px 20px;
+    background-color: #1a1a1a;
+    color: #fff;
+    border: none;
 }
 
 .joke-type {
