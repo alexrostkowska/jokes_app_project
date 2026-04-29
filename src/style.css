@@ -128,6 +128,13 @@ input[type="text"], textarea {
     background-color: #1a1a1a;
     color: #fff;
     border: none;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #bfbaba; 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .joke-type {
@@ -171,4 +178,15 @@ nav a.active {
 .sort-by strong {
     color: #1a1a1a;
     cursor: pointer;
+}
+
+.punchline {
+    display: none;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.punchline.is-visible {
+    display: block;
 }
