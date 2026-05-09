@@ -119,22 +119,39 @@ input[type="text"], textarea {
     }
 
 }
-.btn-primary {
-    position: relative;
+.btn-container {
     display: flex;
-    left: 20%;
-    margin: 20%;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.btn-primary {
     padding: 10px 20px;
     background-color: #1a1a1a;
     color: #fff;
     border: none;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
-    background-color: #bfbaba; 
+    background-color: #333; 
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-like {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    padding: 5px;
+}
+
+.btn-like:hover {
+    transform: scale(1.2);
 }
 
 .joke-type {
