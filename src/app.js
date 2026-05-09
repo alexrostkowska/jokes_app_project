@@ -41,25 +41,33 @@ function renderJoke(joke) {
     container.appendChild(card);
 }
 
-async function loadJoke() {
+async function loadJokes() {
     try {
-        container.innerHTML = "<p>Ładowanie żartu...</p>";
+        container.innerHTML = "<p>Ładowanie żartów...</p>";
 
-        const response = await fetch("https://official-joke-api.appspot.com/random_joke");
+        const fetchPromises = [
+            fetch("https://official-joke-api.appspot.com/random_ten"),
+            fetch("https://official-joke-api.appspot.com/random_ten")
+        ];
 
-        if (!response.ok) {
-            throw new Error("Błąd pobierania danych z API");
+        const responses = await Promise.all(fetchPromises);
+        
+        for (const response of responses) {
+            if (!response.ok) {
+                throw new Error("Błąd pobierania danych z API");
+            }
         }
 
-        const joke = await response.json();
+        const jokeBatches = await Promise.all(responses.map(res => res.json()));
+        const jokes = jokeBatches.flat();
 
         container.innerHTML = "";
-        renderJoke(joke);
+        jokes.forEach(joke => renderJoke(joke));
 
     } catch (error) {
-        container.innerHTML = "<p>Nie udało się pobrać żartu z API.</p>";
+        container.innerHTML = "<p>Nie udało się pobrać żartów z API.</p>";
         console.error(error);
     }
 }
 
-loadJoke();
+loadJokes();
