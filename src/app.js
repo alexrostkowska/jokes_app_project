@@ -97,30 +97,33 @@ function renderJoke(joke, isFavoritesPage = false) {
 async function loadJokes() {
     if (!container) return;
 
+    const userJokes = JSON.parse(localStorage.getItem("userJokes")) || [];
+
     try {
         container.innerHTML = "<p>Ładowanie żartów...</p>";
 
-        const fetchPromises = [
-            fetch("https://official-joke-api.appspot.com/random_ten"),
-            fetch("https://official-joke-api.appspot.com/random_ten")
-        ];
+        const response = await fetch("https://official-joke-api.appspot.com/random_ten");
 
-        const responses = await Promise.all(fetchPromises);
-
-        for (const response of responses) {
-            if (!response.ok) {
-                throw new Error("Błąd pobierania danych z API");
-            }
+        if (!response.ok) {
+            throw new Error("Błąd pobierania danych z API");
         }
 
-        const jokeBatches = await Promise.all(responses.map(res => res.json()));
-        const jokes = jokeBatches.flat();
+        const apiJokes = await response.json();
+
+        const jokes = [...userJokes, ...apiJokes];
 
         container.innerHTML = "";
         jokes.forEach(joke => renderJoke(joke));
 
     } catch (error) {
-        container.innerHTML = "<p>Nie udało się pobrać żartów z API.</p>";
+        container.innerHTML = "";
+
+        if (userJokes.length > 0) {
+            userJokes.forEach(joke => renderJoke(joke));
+        } else {
+            container.innerHTML = "<p>Nie udało się pobrać żartów z API i nie masz jeszcze dodanych własnych żartów.</p>";
+        }
+
         console.error(error);
     }
 }
@@ -143,4 +146,4 @@ if (container) {
     loadJokes();
 } else if (favoritesGrid) {
     loadFavorites();
-}
+} 
