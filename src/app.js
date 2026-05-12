@@ -1,5 +1,6 @@
 const container = document.querySelector(".card-grid:not(#favorites-grid)");
 const favoritesGrid = document.querySelector("#favorites-grid");
+const loadMoreBtn = document.querySelector("#load-more");
 //zmienia tekst json na tablice js
 function getFavorites() {
     return JSON.parse(localStorage.getItem("favorites")) || [];
@@ -95,13 +96,15 @@ function renderJoke(joke, isFavoritesPage = false) {
     }
 }
 
-async function loadJokes() {
+async function loadJokes(clearContainer = true) {
     if (!container) return;
 
     const userJokes = JSON.parse(localStorage.getItem("userJokes")) || [];
 
     try {
-        container.innerHTML = "<p>Ładowanie żartów...</p>";
+        if (clearContainer) {
+            container.innerHTML = "<p>Ładowanie żartów...</p>";
+        }
 
         const response = await fetch("https://official-joke-api.appspot.com/random_ten");
 
@@ -111,24 +114,30 @@ async function loadJokes() {
 
         const apiJokes = await response.json();
 
-        const jokes = [...userJokes, ...apiJokes];
-
-        container.innerHTML = "";
-        jokes.forEach(joke => renderJoke(joke));
+        if (clearContainer) {
+            const jokes = [...userJokes, ...apiJokes];
+            container.innerHTML = "";
+            jokes.forEach(joke => renderJoke(joke));
+        } else {
+            apiJokes.forEach(joke => renderJoke(joke));
+        }
 
     } catch (error) {
-        container.innerHTML = "";
+        if (clearContainer) {
+            container.innerHTML = "";
 
-        if (userJokes.length > 0) {
-            userJokes.forEach(joke => renderJoke(joke));
+            if (userJokes.length > 0) {
+                userJokes.forEach(joke => renderJoke(joke));
+            } else {
+                container.innerHTML = "<p>Nie udało się pobrać żartów z API i nie masz jeszcze dodanych własnych żartów.</p>";
+            }
         } else {
-            container.innerHTML = "<p>Nie udało się pobrać żartów z API i nie masz jeszcze dodanych własnych żartów.</p>";
+            alert("Nie udało się pobrać kolejnych żartów.");
         }
 
         console.error(error);
     }
 }
-
 function loadFavorites() {
     if (!favoritesGrid) return;
 
@@ -143,8 +152,8 @@ function loadFavorites() {
 }
 
 
-if (container) {
-    loadJokes();
-} else if (favoritesGrid) {
-    loadFavorites();
-} 
+if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", function() {
+        loadJokes(false);
+    });
+}

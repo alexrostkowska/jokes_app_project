@@ -207,3 +207,7 @@ nav a.active {
 .punchline.is-visible {
     display: block;
 }
+#load-more {
+    display: block;
+    margin: 40px auto 0;
+}
