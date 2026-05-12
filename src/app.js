@@ -1,6 +1,6 @@
 const container = document.querySelector(".card-grid:not(#favorites-grid)");
 const favoritesGrid = document.querySelector("#favorites-grid");
-
+//zmienia tekst json na tablice js
 function getFavorites() {
     return JSON.parse(localStorage.getItem("favorites")) || [];
 }
@@ -9,6 +9,7 @@ function saveFavorite(joke) {
     let favorites = getFavorites();
     if (!favorites.some(f => f.id === joke.id)) {
         favorites.push(joke);
+        //zapis zmiania obiekt na teskt json
         localStorage.setItem("favorites", JSON.stringify(favorites));
     }
 }

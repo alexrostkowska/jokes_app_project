@@ -7,6 +7,14 @@ form.addEventListener("submit", function(event) {
     const jokeContent = document.querySelector("#joke-content").value;
     const jokePunchline = document.querySelector("#joke-punchline").value;
 
+    if (
+    jokeType.trim() === "" ||
+    jokeContent.trim() === "" ||
+    jokePunchline.trim() === ""
+    ) {
+    alert("Wypełnij wszystkie pola!");
+    return;
+    }
     const newJoke = {
         id: Date.now(),
         type: jokeType,
