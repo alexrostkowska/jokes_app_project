@@ -1,6 +1,7 @@
 const container = document.querySelector(".card-grid:not(#favorites-grid)");
 const favoritesGrid = document.querySelector("#favorites-grid");
 const loadMoreBtn = document.querySelector("#load-more");
+const statsContainer = document.querySelector(".stats-container");
 //zmienia tekst json na tablice js
 function getFavorites() {
     return JSON.parse(localStorage.getItem("favorites")) || [];
@@ -61,6 +62,7 @@ function renderJoke(joke, isFavoritesPage = false) {
 
     const likeBtn = document.createElement("button");
     likeBtn.className = "btn-like";
+    likeBtn.setAttribute("aria-label", "Dodaj do ulubionych");
     likeBtn.innerHTML = isFavorite(joke.id) ? "❤️" : "🤍";
 
     likeBtn.onclick = () => {
@@ -116,10 +118,16 @@ async function loadJokes(clearContainer = true) {
 
         if (clearContainer) {
             const jokes = [...userJokes, ...apiJokes];
+
             container.innerHTML = "";
             jokes.forEach(joke => renderJoke(joke));
+
+            renderStats(jokes.length);
         } else {
             apiJokes.forEach(joke => renderJoke(joke));
+
+            const totalJokes = container.children.length;
+            renderStats(totalJokes);
         }
 
     } catch (error) {
@@ -144,6 +152,8 @@ function loadFavorites() {
     const favorites = getFavorites();
     favoritesGrid.innerHTML = "";
 
+    renderStats(favorites.length);
+
     if (favorites.length === 0) {
         favoritesGrid.innerHTML = "<p>Nie masz jeszcze ulubionych żartów.</p>";
     } else {
@@ -151,6 +161,25 @@ function loadFavorites() {
     }
 }
 
+function renderStats(totalJokes) {
+    if (!statsContainer) return;
+
+    const favoritesCount = getFavorites().length;
+    const userJokesCount = JSON.parse(localStorage.getItem("userJokes"))?.length || 0;
+
+    statsContainer.innerHTML = `
+        
+        <p>Favorites: ${favoritesCount}</p>
+        <p>Your jokes: ${userJokesCount}</p>
+        </br>
+    `;
+}
+
+if (container) {
+    loadJokes();
+} else if (favoritesGrid) {
+    loadFavorites();
+}
 
 if (loadMoreBtn) {
     loadMoreBtn.addEventListener("click", function() {
