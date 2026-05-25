@@ -1,7 +1,8 @@
-const container = document.querySelector(".card-grid:not(#favorites-grid)");
-const favoritesGrid = document.querySelector("#favorites-grid");
-const loadMoreBtn = document.querySelector("#load-more");
-const statsContainer = document.querySelector(".stats-container");
+let container;
+let favoritesGrid;
+let loadMoreBtn;
+
+
 //zmienia tekst json na tablice js
 function getFavorites() {
     return JSON.parse(localStorage.getItem("favorites")) || [];
@@ -71,8 +72,9 @@ function renderJoke(joke, isFavoritesPage = false) {
             likeBtn.innerHTML = "🤍";
             if (isFavoritesPage) {
                 card.remove();
-                if (getFavorites().length === 0) {
-                    favoritesGrid.innerHTML = "<p>Nie masz jeszcze ulubionych żartów.</p>";
+                const currentFavGrid = document.querySelector("#favorites-grid");
+                if (getFavorites().length === 0 && currentFavGrid) {
+                    currentFavGrid.innerHTML = "<p>Nie masz jeszcze ulubionych żartów.</p>";
                 }
             }
         } else {
@@ -80,7 +82,7 @@ function renderJoke(joke, isFavoritesPage = false) {
             likeBtn.innerHTML = "❤️";
         }
     };
-
+    
     card.appendChild(cardContent);
     cardContent.appendChild(jokeType);
     cardContent.appendChild(setup);
@@ -91,21 +93,25 @@ function renderJoke(joke, isFavoritesPage = false) {
     btnContainer.appendChild(likeBtn);
     card.appendChild(btnContainer);
 
-    if (isFavoritesPage && favoritesGrid) {
-        favoritesGrid.appendChild(card);
-    } else if (container) {
-        container.appendChild(card);
+    const currentFavGrid = document.querySelector("#favorites-grid");
+    const currentMainGrid = document.querySelector(".card-grid:not(#favorites-grid)");
+
+    if (isFavoritesPage && currentFavGrid) {
+        currentFavGrid.appendChild(card);
+    } else if (currentMainGrid) {
+        currentMainGrid.appendChild(card);
     }
 }
 
 async function loadJokes(clearContainer = true) {
-    if (!container) return;
+    const mainContainer = document.querySelector(".card-grid:not(#favorites-grid)");
+    if (!mainContainer) return;
 
     const userJokes = JSON.parse(localStorage.getItem("userJokes")) || [];
 
     try {
         if (clearContainer) {
-            container.innerHTML = "<p>Ładowanie żartów...</p>";
+            mainContainer.innerHTML = "<p>Ładowanie żartów...</p>";
         }
 
         const response = await fetch("https://official-joke-api.appspot.com/random_ten");
@@ -119,25 +125,25 @@ async function loadJokes(clearContainer = true) {
         if (clearContainer) {
             const jokes = [...userJokes, ...apiJokes];
 
-            container.innerHTML = "";
+            mainContainer.innerHTML = "";
             jokes.forEach(joke => renderJoke(joke));
 
             renderStats(jokes.length);
         } else {
             apiJokes.forEach(joke => renderJoke(joke));
 
-            const totalJokes = container.children.length;
+            const totalJokes = mainContainer.children.length;
             renderStats(totalJokes);
         }
 
     } catch (error) {
         if (clearContainer) {
-            container.innerHTML = "";
+            mainContainer.innerHTML = "";
 
             if (userJokes.length > 0) {
                 userJokes.forEach(joke => renderJoke(joke));
             } else {
-                container.innerHTML = "<p>Nie udało się pobrać żartów z API i nie masz jeszcze dodanych własnych żartów.</p>";
+                mainContainer.innerHTML = "<p>Nie udało się pobrać żartów z API i nie masz jeszcze dodanych własnych żartów.</p>";
             }
         } else {
             alert("Nie udało się pobrać kolejnych żartów.");
@@ -147,27 +153,29 @@ async function loadJokes(clearContainer = true) {
     }
 }
 function loadFavorites() {
-    if (!favoritesGrid) return;
+    const fGrid = document.querySelector("#favorites-grid");
+    if (!fGrid) return;
 
     const favorites = getFavorites();
-    favoritesGrid.innerHTML = "";
+    fGrid.innerHTML = "";
 
     renderStats(favorites.length);
 
     if (favorites.length === 0) {
-        favoritesGrid.innerHTML = "<p>Nie masz jeszcze ulubionych żartów.</p>";
+        fGrid.innerHTML = "<p>Nie masz jeszcze ulubionych żartów.</p>";
     } else {
         favorites.forEach(joke => renderJoke(joke, true));
     }
 }
 
 function renderStats(totalJokes) {
-    if (!statsContainer) return;
+    const sContainer = document.querySelector(".stats-container");
+    if (!sContainer) return;
 
     const favoritesCount = getFavorites().length;
     const userJokesCount = JSON.parse(localStorage.getItem("userJokes"))?.length || 0;
 
-    statsContainer.innerHTML = `
+    sContainer.innerHTML = `
         
         <p>Favorites: ${favoritesCount}</p>
         <p>Your jokes: ${userJokesCount}</p>
@@ -175,14 +183,51 @@ function renderStats(totalJokes) {
     `;
 }
 
-if (container) {
-    loadJokes();
-} else if (favoritesGrid) {
-    loadFavorites();
-}
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.pathname.includes('favorites.html')) {
+        return; 
+    }
+    const main = document.createElement('main');
+    main.className = 'dashboard-container';
 
-if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", function() {
+    // nagłówek
+    const header = document.createElement('header');
+    header.innerHTML = `
+        <div class="header-left">
+            <h1>Jokes APP</h1>
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="index.html" class="active">HOME</a></li>
+                    <li><a href="form.html">Form</a></li>
+                    <li><a href="favorites.html">Favourites</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="header-right">
+            <span class="sort-by">Sort by:<strong>TAGS</strong></span>
+        </div>
+    `;
+
+    //grid z kartami
+   const cardGrid = document.createElement('div');
+    cardGrid.className = 'card-grid';
+
+    const buttonMore = document.createElement('button');
+    buttonMore.id = 'load-more';
+    buttonMore.className = 'btn-primary';
+    buttonMore.textContent = 'Load more';
+
+    main.appendChild(header);
+    main.appendChild(cardGrid);
+    main.appendChild(buttonMore);
+
+    document.body.appendChild(main);
+
+
+    buttonMore.addEventListener("click", function() {
         loadJokes(false);
     });
-}
+
+    loadJokes();
+});
+
